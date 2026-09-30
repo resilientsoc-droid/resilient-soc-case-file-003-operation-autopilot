@@ -1,0 +1,104 @@
+=============================================================
+Resilient SOC — Case File #003 (Operation Autopilot)
+Command Reference
+=============================================================
+Environment: TheHive/Cortex/Elasticsearch/Cassandra stack + separate Shuffle stack
+Host: 192.168.1.11
+Secrets are represented as placeholders. Never paste real keys into this file.
+
+-------------------------------------------------------------
+1. START THE CORE STACK (TheHive / Cortex / Elasticsearch / Cassandra / nginx / Mailhog)
+-------------------------------------------------------------
+cd ~/resilient-soar/docker/testing
+docker compose up -d
+
+-------------------------------------------------------------
+2. START SHUFFLE
+-------------------------------------------------------------
+cd ~/shuffle
+docker compose up -d
+
+-------------------------------------------------------------
+3. VALIDATE CONTAINER HEALTH
+-------------------------------------------------------------
+docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
+
+-------------------------------------------------------------
+4. SERVICE URLS
+-------------------------------------------------------------
+TheHive:  http://192.168.1.11:9000
+Cortex:   http://192.168.1.11:9001/cortex
+Shuffle:  http://192.168.1.11:3001
+
+-------------------------------------------------------------
+5. CORTEX API — KEY ROUTES
+-------------------------------------------------------------
+GET  http://192.168.1.11:9001/cortex/api/status
+GET  http://192.168.1.11:9001/cortex/api/analyzer
+POST http://192.168.1.11:9001/cortex/api/analyzer/<WORKER_ID>/run
+GET  http://192.168.1.11:9001/cortex/api/job/<JOB_ID>/waitreport
+GET  http://192.168.1.11:9001/cortex/api/job/<JOB_ID>/artifacts
+
+Required headers for POST calls:
+  Authorization: Bearer <CORTEX_API_KEY>
+  Content-Type: application/json
+
+-------------------------------------------------------------
+6. EXAMPLE — RUN THE IPinfo_1_3 ANALYZER DIRECTLY (curl)
+-------------------------------------------------------------
+curl -X POST \
+  "http://192.168.1.11:9001/cortex/api/analyzer/c4538ef31090f3530d1f6e2b333ad580/run" \
+  -H "Authorization: Bearer <CORTEX_API_KEY>" \
+  -H "Content-Type: application/json" \
+  -d '{
+        "data": "8.8.8.8",
+        "dataType": "ip",
+        "tlp": 2,
+        "force": 1
+      }'
+
+Common failure modes when adapting this call (see Section 17 of the lab guide):
+  - Omitting "/cortex" from the URL path        -> 404
+  - Omitting the Authorization header             -> 401
+  - Omitting Content-Type: application/json       -> 400
+
+-------------------------------------------------------------
+7. TheHive / Cortex REFERENCE DATA USED IN THIS LAB
+-------------------------------------------------------------
+TheHive Case ID:      ~122884224
+Observable:           8.8.8.8
+Cortex analyzer name: IPinfo_1_3
+Cortex analyzer ID:   IPinfo_1_3_1_0
+Cortex worker ID:     c4538ef31090f3530d1f6e2b333ad580
+
+-------------------------------------------------------------
+8. SHUFFLE WORKFLOW
+-------------------------------------------------------------
+Workflow name: SOC-Auto-Response
+Nodes of interest: "TheHive 2" (observable retrieval), "Cortex 1" (Custom Action enrichment call)
+
+Dynamic expressions attempted for Cortex 1 body (NOT YET CONFIRMED CORRECT — see Section 10 of the guide):
+  $thehive_2.body.0.data
+  $thehive_2.body.1.data
+
+-------------------------------------------------------------
+9. DO NOT RUN AS ROUTINE TROUBLESHOOTING
+-------------------------------------------------------------
+docker compose down -v      # destroys volumes — case/analyzer data loss risk
+docker system prune         # can remove images/volumes still in use
+
+If Elasticsearch logs a low-disk watermark warning, free disk space or adjust the watermark
+thresholds — do not reach for volume deletion first.
+
+-------------------------------------------------------------
+10. RESPONSE ACTIONS — REFERENCE / LAB ONLY, DO NOT RUN AGAINST PRODUCTION
+-------------------------------------------------------------
+Disable-ADAccount -Identity "sfahmy"
+Get-ADUser -Identity "sfahmy" | Select-Object Enabled
+
+Invoke-Command -ComputerName fin-workstation01 -ScriptBlock {
+    New-NetFirewallRule -DisplayName "SOC-Isolation" `
+      -Direction Outbound `
+      -Action Block `
+      -RemoteAddress Any
+}
