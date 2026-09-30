@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🛡️ Resilient SOC — Case File #003
+# Resilient SOC — Case File #003
 ## Operation Autopilot
 ### From Detection to Automated Response — a hands-on SOAR integration lab
 
@@ -15,7 +15,7 @@
 
 ---
 
-## 📖 Overview
+## Overview
 
 **Operation Autopilot** is the third lab in the *Resilient SOC* training series. Cases #001 and #002 covered detection and investigation. This one goes further: **orchestration, enrichment, and human-approved response**.
 
@@ -27,11 +27,11 @@ The goal is a pipeline where a Splunk detection fires a webhook, Shuffle creates
 | Case File #002 | Operation Nightfall |
 | **Case File #003** | **Operation Autopilot — SOAR integration** |
 
-> ⚠️ **Honest status note:** this is a living lab document. The core SOAR chain is built and validated component by component. The end-to-end Splunk-to-containment run has **not** happened yet, and this repo does not claim it did. Details below.
+> **Honest status note:** this is a living lab document. The core SOAR chain is built and validated component by component. The end-to-end Splunk-to-containment run has **not** happened yet, and this repo does not claim it did. Details below.
 
 ---
 
-## 🧭 Target Pipeline
+## Target Pipeline
 
 <p align="center">
   <img src="diagrams/operation-autopilot-flow.png" alt="Operation Autopilot end-to-end flow" width="90%">
@@ -47,7 +47,7 @@ Splunk → Detection Rule → Webhook → Shuffle → TheHive → Observable/IOC
 
 ---
 
-## 🏗️ Lab Architecture
+## Lab Architecture
 
 Two Docker Compose stacks on one host, talking over REST.
 
@@ -66,7 +66,7 @@ Two Docker Compose stacks on one host, talking over REST.
 
 ---
 
-## ✅ Where the Lab Stands
+## Where the Lab Stands
 
 <p align="center">
   <img src="assets/pipeline-status-board.png" alt="Pipeline status board" width="95%">
@@ -90,7 +90,7 @@ The current blocker and the exact troubleshooting checklist are in **Section 10*
 
 ---
 
-## 🔧 Problems Hit Along the Way
+## Problems Hit Along the Way
 
 Every failure is documented with its root cause and fix, so the path is repeatable.
 
@@ -105,7 +105,7 @@ Two that cost the most time:
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ```bash
 # 1. Core stack: TheHive, Cortex, Elasticsearch, Cassandra, nginx, Mailhog
@@ -122,7 +122,7 @@ docker ps --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}'
 
 Service URLs, Cortex API routes, and the Custom Action config are in [`commands/lab-commands.txt`](./commands/lab-commands.txt).
 
-> 🔐 Secrets are placeholders such as `<CORTEX_API_KEY>`. Never commit real keys.
+> Secrets are placeholders such as `<CORTEX_API_KEY>`. Never commit real keys.
 
 ---
 
@@ -144,11 +144,11 @@ Service URLs, Cortex API routes, and the Custom Action config are in [`commands/
 └── screenshots/                  ← evidence slots (see note below)
 ```
 
-> 📸 **About `screenshots/`:** the 25 files there are labeled placeholders that mark the planned evidence points. They are replaced with real captures as the lab progresses; [`EVIDENCE-INDEX.md`](./evidence/EVIDENCE-INDEX.md) tracks the status of each one.
+> **About `screenshots/`:** the 25 files there are labeled placeholders that mark the planned evidence points. They are replaced with real captures as the lab progresses; [`EVIDENCE-INDEX.md`](./evidence/EVIDENCE-INDEX.md) tracks the status of each one.
 
 ---
 
-## 📚 Read Next
+## Read Next
 
 1. [`SOAR-Lab-Guide.md`](./SOAR-Lab-Guide.md) — the full technical guide (PDF version alongside)
 2. [`architecture/architecture.md`](./architecture/architecture.md) — design vs. what is actually running
@@ -157,7 +157,7 @@ Service URLs, Cortex API routes, and the Custom Action config are in [`commands/
 
 ---
 
-## 🗺️ Roadmap
+##  Roadmap
 
 - [ ] Fix the dynamic observable mapping (TheHive 2 → Cortex 1)
 - [ ] Build the Shuffle webhook receiver and Splunk alert action
